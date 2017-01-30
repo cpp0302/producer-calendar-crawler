@@ -1,0 +1,19 @@
+{
+  "name": "producercalendarcrawler",
+  "version": "1.0.0",
+  "description": "プロデューサー予定表のクローラー",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://cpp0302@bitbucket.org/cpp0302/producercalendarcrawler.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/cpp0302/producercalendarcrawler#readme",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
+}
