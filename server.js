@@ -30,7 +30,9 @@ if (env === 'production') {
 	app.set('port', process.env.PORT || 8080);
 };
 
+var icalendarTest = require('./routes/icalendar-test');
 app.get('/', routes.index);
+app.get('/icalendar-test.ics', icalendarTest.icalendarTest);
 
 var server = http.createServer(app);
 
