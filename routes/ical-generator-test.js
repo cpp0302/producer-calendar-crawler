@@ -22,6 +22,15 @@ var ical = require('ical-generator'),
 		url: "http://sabbo.net/"
 	});
 
+	cal.createEvent({
+		start: new Date(2017, 1, 1, 9, 0, 0),
+		end: new Date(2017, 1, 1, 18, 0, 0),
+		summary: "Example Event2",
+		description: "It works",
+		location: "my room",
+		url: "http://sabbo.net/"
+	});
+
 exports.icalGeneratorTest = function(req, res){
 	console.log(cal.toString());
 
