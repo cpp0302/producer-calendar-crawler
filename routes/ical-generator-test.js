@@ -9,8 +9,6 @@ var ical = require('ical-generator'),
 		timezone: "Asia/Tokyo"
 	});
 
-exports.icalGeneratorTest = function(req, res){
-	
 	// summary     : 件名
 	// location    : 場所
 	// description : 説明
@@ -24,6 +22,7 @@ exports.icalGeneratorTest = function(req, res){
 		url: "http://sabbo.net/"
 	});
 
+exports.icalGeneratorTest = function(req, res){
 	console.log(cal.toString());
 
 	// どっちでもOK
