@@ -31,8 +31,10 @@ if (env === 'production') {
 };
 
 var icalendarTest = require('./routes/icalendar-test');
+var icalGeneratorTest = require('./routes/ical-generator-test');
 app.get('/', routes.index);
 app.get('/icalendar-test.ics', icalendarTest.icalendarTest);
+app.get('/ical-generator-test.ics', icalGeneratorTest.icalGeneratorTest);
 
 var server = http.createServer(app);
 
