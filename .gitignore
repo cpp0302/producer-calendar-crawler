@@ -1,4 +1,4 @@
 node_modules
 /public/temp
 /typings
-/routes/producer-calendar.js
+/routes/*.js
