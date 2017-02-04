@@ -19,5 +19,10 @@
     "express": "^4.14.1",
     "ical-generator": "^0.2.9",
     "icalendar": "^0.7.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-nodemon": "^2.2.1"
   }
 }
