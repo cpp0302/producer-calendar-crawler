@@ -23,19 +23,25 @@ exports.producerCalendar = function(req, res) {
 		if (fs.existsSync(tempFilePath)) {
 			console.log("file [" + tempFileName + "] is already downloaded.");
 			url = tempFileUrl;
-			testScraping(url);
+			testScraping(url, function(ret) {
+				res.status(200);
+				res.end(ret);
+			});
 		} else {
 			downloadFile(url, tempFilePath, function() {
 				url = tempFileUrl;
-				testScraping(url);
+				testScraping(url, function(ret) {
+					res.status(200);
+					res.end(ret);
+				});
 			});
 		}
 	} else {
-		testScraping(url);
+		testScraping(url, function(ret) {
+			res.status(200);
+			res.end(ret);
+		});
 	}
-
-	res.status(200);
-	res.end('test');
 }
 
 function downloadFile(url, filePath, callback) {
@@ -61,22 +67,19 @@ function downloadFile(url, filePath, callback) {
 
 function testScraping(url, callback) {
 
+	var ret = "";
+
 	// Googleで「node.js」について検索する。
 	client.fetch(url, { q: 'node.js' }, function (err, $, res) {
 
-		// レスポンスヘッダを参照
-		console.log(res.headers);
-
-		// HTMLタイトルを表示
-		console.log($('title').text());
-
-		// リンク一覧を表示
-		$('a').each(function (idx) {
-			console.log($(this).attr('href'));
+		$('tr').each(function (idx) {
+			// console.log(this);
+			console.log($(this).find('.article2').text());
+			ret = ret + $(this).find('.article2').text() + "\n";
 		});
 
 		if (typeof callback === 'function') {
-			callback();
+			callback(ret);
 		}
 	});
 }
