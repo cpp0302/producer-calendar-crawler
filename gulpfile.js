@@ -1,7 +1,9 @@
 var gulp = require('gulp')
   , nodemon = require('gulp-nodemon')
-  , livereload = require('gulp-livereload');
+  , livereload = require('gulp-livereload')
+  , typescript = require('gulp-typescript');
 
+// サーバリロード
 gulp.task('serve', function() {
 	livereload.listen();
 	var reload;
@@ -38,4 +40,21 @@ gulp.task('serve', function() {
 		});
 });
 
-gulp.task('default', ['serve']);
+// TypeScriptコンパイル(サーバ側)
+gulp.task('ts', function() {
+
+	var options = {
+		target: "ES5",
+		module: "commonjs"
+	};
+
+	gulp.src(['source/server/**/*.ts'])
+		.pipe(typescript(options))
+		.pipe(gulp.dest('./'));
+});
+
+gulp.task('watch', function() {
+	gulp.watch('source/server/**/*.ts', ['ts']);
+});
+
+gulp.task('default', ['serve', 'watch']);
