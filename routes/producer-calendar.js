@@ -9,13 +9,11 @@ var app = environment.app;
 var env = app.get('env');
 
 // 出力先を指定
-var url = "http://idolmaster.jp/schedule/";
-var tempFileName = url.replace(/https{0,1}:\/\//, '').replace(/\//g, '_');
+// var url = "http://idolmaster.jp/schedule/";
+var url = "http://idolmaster.jp/schedule/?ey=2017&em=01";
+var tempFileName = url.replace(/https{0,1}:\/\//, '').replace(/(\/|\?|&)/g, '_');
 var tempFilePath = "./public/temp/" + tempFileName;
 var tempFileUrl = "http://localhost:" + app.get('port') + "/temp/" + tempFileName;
-
-console.log('env = ' + env);
-console.log('port = ' + app.get('port'));
 
 exports.producerCalendar = function(req, res) {
 
@@ -23,23 +21,23 @@ exports.producerCalendar = function(req, res) {
 		if (fs.existsSync(tempFilePath)) {
 			console.log("file [" + tempFileName + "] is already downloaded.");
 			url = tempFileUrl;
-			testScraping(url, function(ret) {
+			scrapingProducerCalendar(url, function(ret) {
 				res.status(200);
-				res.end(ret);
+				res.end(JSON.stringify(ret));
 			});
 		} else {
 			downloadFile(url, tempFilePath, function() {
 				url = tempFileUrl;
-				testScraping(url, function(ret) {
+				scrapingProducerCalendar(url, function(ret) {
 					res.status(200);
-					res.end(ret);
+					res.end(JSON.stringify(ret));
 				});
 			});
 		}
 	} else {
-		testScraping(url, function(ret) {
+		scrapingProducerCalendar(url, function(ret) {
 			res.status(200);
-			res.end(ret);
+			res.end(JSON.stringify(ret));
 		});
 	}
 }
@@ -65,21 +63,113 @@ function downloadFile(url, filePath, callback) {
 	});
 }
 
-function testScraping(url, callback) {
+function scrapingProducerCalendar(url, callback) {
 
-	var ret = "";
+	var ret = [];
 
-	// Googleで「node.js」について検索する。
-	client.fetch(url, { q: 'node.js' }, function (err, $, res) {
+	client.fetch(url, {}, function (err, $, res) {
+
+		var day;
 
 		$('tr').each(function (idx) {
-			// console.log(this);
-			console.log($(this).find('.article2').text());
-			ret = ret + $(this).find('.article2').text() + "\n";
+			var article = $(this).find('.article2 a');
+			if (article.text() === "") return;
+
+			dayImageSrcTemp = $(this).find('.day2 img').attr('src');
+
+			if (typeof dayImageSrcTemp !== "undefined") {
+				day = parseInt(dayImageSrcTemp.match(/\d{2}/));
+			}
+
+			var strTime = $(this).find('.time2').text();
+			var timeSchedule = convertTimeSchedule(strTime);
+
+			var performanceImageSrc = $(this).find('.performance2 img').attr('src');
+			var performance = convertPerformance(performanceImageSrc);
+
+			var item = {
+				day: day,
+				timeSchedule: timeSchedule,
+				performance: performance,
+				article: article.toString()
+			}
+
+			ret.push(item);
 		});
 
 		if (typeof callback === 'function') {
 			callback(ret);
 		}
 	});
+}
+
+// アイコン番号を出演情報に変換するテーブル
+var convertPerformanceTable = [
+	undefined,
+	"4Stars",
+	"765",
+	"765 & シンデレラ",
+	"765 & ミリオン",
+	"シンデレラ",
+	"シンデレラ & ミリオン",
+	"ミリオン",
+	"その他", // 坂上陽三総合P
+	"その他", // 鳥羽アニメP & 高橋宣伝P
+	"その他", // 高橋宣伝P
+	"SideM",
+	"3Stars"
+];
+
+// 出演情報画像のURLを出演情報に変換する関数
+function convertPerformance(imageSrcUrl) {
+	
+	var performance = "";
+	var regexImageNumber = /ico_(\d{2})\.png/;
+
+	if (!regexImageNumber.test(imageSrcUrl)) {
+		return "";
+	}
+
+	var iconNumber = parseInt(imageSrcUrl.match(regexImageNumber)[1]);
+	return convertPerformanceTable[iconNumber];
+}
+
+// 時間を時間情報に変換する関数
+function convertTimeSchedule(strTime) {
+
+	var timeSchedule = { isAllTime: true };
+
+	if (/-/.test(strTime)) {
+		var times = strTime.split('-');
+		timeSchedule.isAllTime = false;
+		timeSchedule.start = convertTime(times[0]);
+		timeSchedule.end = convertTime(times[1]);
+	} else {
+		var start = convertTime(strTime);
+		if (typeof start !== "undefined") {
+			timeSchedule.isAllTime = false;
+			timeSchedule.start = start;
+		}
+	}
+
+	return timeSchedule;
+}
+
+// 時間を変換するコア関数
+// 22:00 -> { hour: 22, minute: 0 }
+function convertTime(strTime) {
+
+	var time = undefined;
+	var regexTime = /(\d{1,2})(:|：)(\d{2})/;
+
+	if (regexTime.test(strTime)) {
+		var match = strTime.match(regexTime);
+
+		time = {
+			hour: match[1],
+			minute: match[3]
+		};
+	}
+
+	return time;
 }
