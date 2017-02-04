@@ -13,8 +13,10 @@ gulp.task('serve', function() {
 		env: {
 			'NODE_ENV': 'development'
 		},
-		stdout: false
+		stdout: false,
+		stderr: false
 	}).on('readable', function() {
+
 		// 標準出力に起動完了のログが出力されたらリロードイベント発行
 		this.stdout.on('data', function(chunk) {
 			if (/^Express\ server\ listening/.test(chunk)) {
@@ -22,6 +24,10 @@ gulp.task('serve', function() {
 			}
 
 			process.stdout.write(chunk);
+		});
+
+		this.stderr.on('data', function(chunk) {
+			process.stderr.write(chunk);
 		});
 	});
 
