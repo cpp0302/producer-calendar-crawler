@@ -1,7 +1,8 @@
+/// <reference path="../../..//typings/index.d.ts" />
 
-var fs = require('fs')
-  , http = require('http')
-  , client = require('cheerio-httpcli');
+import fs = require('fs');
+import http = require('http')
+import client = require('cheerio-httpcli');
 
 var environment = require('../environment');
 
@@ -75,10 +76,10 @@ function scrapingProducerCalendar(url, callback) {
 			var article = $(this).find('.article2 a');
 			if (article.text() === "") return;
 
-			dayImageSrcTemp = $(this).find('.day2 img').attr('src');
+			var dayImageSrcTemp = $(this).find('.day2 img').attr('src');
 
 			if (typeof dayImageSrcTemp !== "undefined") {
-				day = parseInt(dayImageSrcTemp.match(/\d{2}/));
+				day = parseInt(dayImageSrcTemp.match(/\d{2}/)[0]);
 			}
 
 			var strTime = $(this).find('.time2').text();
@@ -134,10 +135,21 @@ function convertPerformance(imageSrcUrl) {
 	return convertPerformanceTable[iconNumber];
 }
 
+interface Time {
+	hour: number;
+	minute: number;
+}
+
+interface TimeSchedule {
+	isAllTime: boolean;
+	start?: Time;
+	end?: Time;
+}
+
 // 時間を時間情報に変換する関数
 function convertTimeSchedule(strTime) {
 
-	var timeSchedule = { isAllTime: true };
+	var timeSchedule: TimeSchedule = { isAllTime: true };
 
 	if (/-/.test(strTime)) {
 		var times = strTime.split('-');
@@ -172,4 +184,9 @@ function convertTime(strTime) {
 	}
 
 	return time;
+}
+
+// スクレイピング結果をもとに
+function createiCalendar(calendar) {
+
 }
