@@ -57,4 +57,4 @@ gulp.task('watch', function() {
 	gulp.watch('source/server/**/*.ts', ['ts']);
 });
 
-gulp.task('default', ['serve', 'watch']);
+gulp.task('default', ['watch', 'serve']);

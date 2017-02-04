@@ -1,22 +1,24 @@
-/// <reference path="../../..//typings/index.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 
-import fs = require('fs');
-import http = require('http')
-import client = require('cheerio-httpcli');
+import * as express from 'express';
+import * as fs from 'fs';
+import * as http from 'http';
+import * as client from 'cheerio-httpcli';
 
-var environment = require('../environment');
+import environment = require('../environment');
 
 var app = environment.app;
 var env = app.get('env');
+var port = app.get('port');
 
 // 出力先を指定
 // var url = "http://idolmaster.jp/schedule/";
 var url = "http://idolmaster.jp/schedule/?ey=2017&em=01";
 var tempFileName = url.replace(/https{0,1}:\/\//, '').replace(/(\/|\?|&)/g, '_');
 var tempFilePath = "./public/temp/" + tempFileName;
-var tempFileUrl = "http://localhost:" + app.get('port') + "/temp/" + tempFileName;
+var tempFileUrl = "http://localhost:" + port + "/temp/" + tempFileName;
 
-exports.producerCalendar = function(req, res) {
+export function producerCalendar(req: express.Request, res: express.Response) {
 
 	if (env === 'development') {
 		if (fs.existsSync(tempFilePath)) {

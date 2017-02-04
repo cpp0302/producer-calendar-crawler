@@ -1,8 +1,7 @@
+/// <reference path="../../../typings/index.d.ts" />
 
-/*
- * GET home page.
- */
+import * as express from 'express';
 
-exports.index = function(req, res){
+export function index(req: express.Request, res: express.Response){
   // res.render('index', { title: 'Express' });
 };
