@@ -1,7 +1,8 @@
 node_modules
 /public/temp
 /typings
-/routes/*.js
+/routes/**/*.js
+/models/**/*.js
 
 /environment.js
 /server.js
