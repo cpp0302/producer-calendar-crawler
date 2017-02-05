@@ -3,7 +3,8 @@
 import * as express from 'express';
 import * as fs from 'fs';
 import * as http from 'http';
-import * as client from 'cheerio-httpcli';
+import * as spc from '../models/scraping/scrapingProducerCalendar';
+import * as converter from '../models/ical/icalConverter';
 
 import environment = require('../environment');
 
@@ -24,26 +25,33 @@ export function producerCalendar(req: express.Request, res: express.Response) {
 		if (fs.existsSync(tempFilePath)) {
 			console.log("file [" + tempFileName + "] is already downloaded.");
 			url = tempFileUrl;
-			scrapingProducerCalendar(url, function(ret) {
-				res.status(200);
-				res.end(JSON.stringify(ret));
-			});
+			spc.execute(url, getSpcCallback(req, res));
 		} else {
 			downloadFile(url, tempFilePath, function() {
 				url = tempFileUrl;
-				scrapingProducerCalendar(url, function(ret) {
-					res.status(200);
-					res.end(JSON.stringify(ret));
-				});
+				spc.execute(url, getSpcCallback(req, res));
 			});
 		}
 	} else {
-		scrapingProducerCalendar(url, function(ret) {
-			res.status(200);
-			res.end(JSON.stringify(ret));
-		});
+		spc.execute(url, getSpcCallback(req, res));
 	}
 }
+
+function getSpcCallback(req: express.Request, res: express.Response) {
+	return function(schedules: spc.Schedule[]) {
+
+		var cal = converter.execute(schedules);
+		var dummy: string = (<any>req.params).dummy;
+
+		if (dummy.indexOf('str') === -1) {
+			cal.serve(res);
+		} else {
+			res.status(200);
+			res.end(cal.toString());
+		}
+	}
+}
+
 
 function downloadFile(url, filePath, callback) {
 
@@ -64,131 +72,4 @@ function downloadFile(url, filePath, callback) {
 			}
 		});
 	});
-}
-
-function scrapingProducerCalendar(url, callback) {
-
-	var ret = [];
-
-	client.fetch(url, {}, function (err, $, res) {
-
-		var day;
-
-		$('tr').each(function (idx) {
-			var article = $(this).find('.article2 a');
-			if (article.text() === "") return;
-
-			var dayImageSrcTemp = $(this).find('.day2 img').attr('src');
-
-			if (typeof dayImageSrcTemp !== "undefined") {
-				day = parseInt(dayImageSrcTemp.match(/\d{2}/)[0]);
-			}
-
-			var strTime = $(this).find('.time2').text();
-			var timeSchedule = convertTimeSchedule(strTime);
-
-			var performanceImageSrc = $(this).find('.performance2 img').attr('src');
-			var performance = convertPerformance(performanceImageSrc);
-
-			var item = {
-				day: day,
-				timeSchedule: timeSchedule,
-				performance: performance,
-				article: article.toString()
-			}
-
-			ret.push(item);
-		});
-
-		if (typeof callback === 'function') {
-			callback(ret);
-		}
-	});
-}
-
-// アイコン番号を出演情報に変換するテーブル
-var convertPerformanceTable = [
-	undefined,
-	"4Stars",
-	"765",
-	"765 & シンデレラ",
-	"765 & ミリオン",
-	"シンデレラ",
-	"シンデレラ & ミリオン",
-	"ミリオン",
-	"その他", // 坂上陽三総合P
-	"その他", // 鳥羽アニメP & 高橋宣伝P
-	"その他", // 高橋宣伝P
-	"SideM",
-	"3Stars"
-];
-
-// 出演情報画像のURLを出演情報に変換する関数
-function convertPerformance(imageSrcUrl) {
-	
-	var performance = "";
-	var regexImageNumber = /ico_(\d{2})\.png/;
-
-	if (!regexImageNumber.test(imageSrcUrl)) {
-		return "";
-	}
-
-	var iconNumber = parseInt(imageSrcUrl.match(regexImageNumber)[1]);
-	return convertPerformanceTable[iconNumber];
-}
-
-interface Time {
-	hour: number;
-	minute: number;
-}
-
-interface TimeSchedule {
-	isAllTime: boolean;
-	start?: Time;
-	end?: Time;
-}
-
-// 時間を時間情報に変換する関数
-function convertTimeSchedule(strTime) {
-
-	var timeSchedule: TimeSchedule = { isAllTime: true };
-
-	if (/-/.test(strTime)) {
-		var times = strTime.split('-');
-		timeSchedule.isAllTime = false;
-		timeSchedule.start = convertTime(times[0]);
-		timeSchedule.end = convertTime(times[1]);
-	} else {
-		var start = convertTime(strTime);
-		if (typeof start !== "undefined") {
-			timeSchedule.isAllTime = false;
-			timeSchedule.start = start;
-		}
-	}
-
-	return timeSchedule;
-}
-
-// 時間を変換するコア関数
-// 22:00 -> { hour: 22, minute: 0 }
-function convertTime(strTime) {
-
-	var time = undefined;
-	var regexTime = /(\d{1,2})(:|：)(\d{2})/;
-
-	if (regexTime.test(strTime)) {
-		var match = strTime.match(regexTime);
-
-		time = {
-			hour: match[1],
-			minute: match[3]
-		};
-	}
-
-	return time;
-}
-
-// スクレイピング結果をもとに
-function createiCalendar(calendar) {
-
 }
