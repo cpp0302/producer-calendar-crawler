@@ -51,6 +51,12 @@ export class iCalendarEvent {
 			}
 		}
 
+		this.start.setMinutes(this.start.getMinutes() - this.start.getTimezoneOffset());
+
+		if (typeof this.end !== "undefined") {
+			this.end.setMinutes(this.end.getMinutes() - this.end.getTimezoneOffset());
+		}
+
 		this.summary = "【" + schedule.performance + "】 " + schedule.title;
 		this.description = schedule.article;
 		this.timezone = "Asia/Tokyo";
