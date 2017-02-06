@@ -27,6 +27,9 @@ export class iCalendarEvent {
 	/** 終日スケジュールかどうか */
 	public allDay: boolean;
 
+	/** タイムゾーン */
+	public timezone: string;
+
 	constructor(schedule: spc.Schedule) {
 
 		this.allDay = schedule.timeSchedule.isAllTime;
@@ -50,12 +53,13 @@ export class iCalendarEvent {
 
 		this.summary = "【" + schedule.performance + "】 " + schedule.title;
 		this.description = schedule.article;
+		this.timezone = "Asia/Tokyo";
 	}
 }
 
 // TODO: 年月をちゃんと持ってくること
 var year = 2017;
-var month = 1;
+var month = 0;
 
 export function execute(schedules: spc.Schedule[]) {
 	var cal = ical({
