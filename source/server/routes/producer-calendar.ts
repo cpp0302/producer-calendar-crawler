@@ -4,7 +4,7 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as spc from '../models/scraping/scrapingProducerCalendar';
-import * as converter from '../models/ical/icalConverter';
+import * as event from '../models/ical/iCalendarEvent';
 
 import environment = require('../environment');
 
@@ -40,7 +40,7 @@ export function producerCalendar(req: express.Request, res: express.Response) {
 function getSpcCallback(req: express.Request, res: express.Response) {
 	return function(schedules: spc.Schedule[]) {
 
-		var cal = converter.execute(schedules);
+		var cal = event.execute(schedules);
 		var dummy: string = (<any>req.params).dummy;
 
 		if (dummy.indexOf('str') === -1) {
