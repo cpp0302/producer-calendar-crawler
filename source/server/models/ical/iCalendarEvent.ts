@@ -34,18 +34,18 @@ export class iCalendarEvent {
 
 		this.allDay = schedule.timeSchedule.isAllTime;
 		if (schedule.timeSchedule.isAllTime) {
-			this.start = new Date(year, month, schedule.day);
+			this.start = new Date(schedule.year, schedule.month, schedule.day);
 		} else {
-			this.start = new Date(year, month, schedule.day
+			this.start = new Date(schedule.year, schedule.month, schedule.day
 				,schedule.timeSchedule.start.hour
 				,schedule.timeSchedule.start.minute);
 			if (typeof schedule.timeSchedule.end !== "undefined") {
-				this.end = new Date(year, month, schedule.day
+				this.end = new Date(schedule.year, schedule.month, schedule.day
 					,schedule.timeSchedule.end.hour
 					,schedule.timeSchedule.end.minute);
 			} else {
 				// 終了が定義されていない場合はとりあえず1時間後に終了とする
-				this.end = new Date(year, month, schedule.day
+				this.end = new Date(schedule.year, schedule.month, schedule.day
 					,schedule.timeSchedule.start.hour + 1
 					,schedule.timeSchedule.start.minute);
 			}
@@ -62,10 +62,6 @@ export class iCalendarEvent {
 		this.timezone = "Asia/Tokyo";
 	}
 }
-
-// TODO: 年月をちゃんと持ってくること
-var year = 2017;
-var month = 0;
 
 export function execute(schedules: spc.Schedule[]) {
 	var cal = ical({
