@@ -1,5 +1,8 @@
+/// <reference path="../../../typings/index.d.ts" />
 
-exports.icalendarTest = function(req, res){
+import * as express from 'express';
+
+export function icalendarTest(req: express.Request, res: express.Response){
 	
 	var icalendar = require('icalendar');
 	var ical = new icalendar.iCalendar();
