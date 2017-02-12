@@ -10,6 +10,16 @@ export function execute(url, callback: (schedules: Schedule[]) => void) {
 
 		var day;
 
+		// 年のタブの
+		// <img src="../../images/schedule/renewal/btn_2017_down.jpg" alt="">
+		// 2017の部分を取り出し
+		var year = parseInt($("#tabs>ul img[src$='down.jpg']").attr("src").match("[0-9]{4}")[0]);
+
+		// 月のタブの
+		// <img src="../../images/schedule/renewal/btn_02_down.png" alt="">
+		// 02の部分を取り出し
+		var month = parseInt($("#month img[src$='down.png']").attr("src").match("[0-9]{2}")[0]);
+
 		$('tr').each(function (idx) {
 			var article = $(this).find('.article2 a');
 			if (article.text() === "") return;
@@ -26,7 +36,9 @@ export function execute(url, callback: (schedules: Schedule[]) => void) {
 			var performanceImageSrc = $(this).find('.performance2 img').attr('src');
 			var performance = convertPerformance(performanceImageSrc);
 
-			var item = {
+			var item: Schedule = {
+				year: year,
+				month: month - 1,
 				day: day,
 				timeSchedule: timeSchedule,
 				performance: performance,
@@ -86,6 +98,9 @@ export interface TimeSchedule {
 }
 
 export interface Schedule {
+	year: number;
+	/** 月(1月は0であることに注意) */
+	month: number;
 	day: number;
 	timeSchedule: TimeSchedule;
 	performance: string;
